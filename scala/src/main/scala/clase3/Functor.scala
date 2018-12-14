@@ -4,8 +4,8 @@ import scala.io.StdIn
 
 object Functor extends App {
 
-  def readAnInt = {
-    val str = StdIn.readLine("Enter an Int that you'd like to double:\n")
+  def readAnInt(message:String) = {
+    val str = StdIn.readLine(message)
 
     try {
       Some(str.toInt)
@@ -14,11 +14,12 @@ object Functor extends App {
     }
   }
 
-  val doubled = readAnInt.map(_ * 2)
+  val maybeInt = readAnInt("Enter an Int that you'd like to double:\n")
+  val maybeDoubled = maybeInt.map(_ * 2)
 
-  println(doubled)
+  println(maybeDoubled)
 
-  doubled match {
+  maybeDoubled match {
     case Some(x) => println("here is your double: " + x)
     case None => println("you are a mean person")
   }
