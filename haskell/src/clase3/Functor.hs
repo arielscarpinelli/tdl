@@ -1,12 +1,20 @@
 module Functor where
 
-imperative_ish = do
-  name <- getLine
-  return ("Hello " ++ name)
+import Text.Read
 
-functional =
-  fmap (\name -> "Hello " ++ name) getLine
+toDouble :: String -> Maybe Int
+toDouble line = 
+  let
+    maybeInt = readMaybe line :: Maybe Int
+    maybeDouble = fmap (\int -> int * 2) maybeInt
+    in maybeDouble
+
+desc (Just x) = "your double is " ++ (show x)
+desc (Nothing) = "you are a mean person"
 
 main = do
-  print "Please enter your name"
-  functional
+  print "Enter a number to double"
+  line <- getLine
+  print (
+    let maybeDouble = toDouble line
+    in (show maybeDouble) ++ " -> " ++ (desc maybeDouble))
