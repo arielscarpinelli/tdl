@@ -18,3 +18,5 @@ main = do
   print (
     let maybeDouble = toDouble line
     in (show maybeDouble) ++ " -> " ++ (desc maybeDouble))
+  print "lists are functors too"
+  print ((2*) <$> [1, 2, 3, 4])
