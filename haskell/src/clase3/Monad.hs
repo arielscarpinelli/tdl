@@ -31,4 +31,8 @@ underneath =
 -- :t join f
 -- join f :: IO String
 
+listsAreMonadsToo = do
+  print ([1, 3, 5, 7] >>= \num -> [num, num+1])
+  
+
 main = underneath
