@@ -1,4 +1,4 @@
-module CalcServerAsync where
+module CalcServerWorkerAsync where
 
 
 import Control.Concurrent
@@ -30,10 +30,16 @@ channelWithStatefulReader f initialState = do
   
   return ch
 
-server ch (Calc x sender) state = do
-  print ("server received " ++ (show x))
+worker x sender = do
+  print ("worker started for " ++ (show x))
   threadDelay 1000000 -- 1s
   writeChan sender (Result (x * x + 1))
+  print ("worker finished for "  ++ (show x))
+
+
+server ch (Calc x sender) state = do
+  print ("server received " ++ (show x))
+  forkIO (worker x sender)
   return state
 
 client ch (Work serverCh) state = do

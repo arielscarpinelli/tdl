@@ -1,4 +1,4 @@
-module CalcServerAsync where
+module CalcServerContinuation where
 
 
 import Control.Concurrent
@@ -8,12 +8,19 @@ data ServerMessage =
   Calc {
     x :: Int,
     sender :: Chan ClientMessage
+  } | ContResponse {
+    x :: Int,
+    y :: Int,
+    sender :: Chan ClientMessage
   }
 
 data ClientMessage = 
   Work {
     serverCh :: Chan ServerMessage
-  }  | Result {
+  } | Cont  {
+    c :: Int,
+    contCh :: Chan ServerMessage
+  } | Result {
     result :: Int
   }
 
@@ -30,25 +37,46 @@ channelWithStatefulReader f initialState = do
   
   return ch
 
+
+doWork ch (Calc x sender) = do
+  threadDelay 1000000 -- 1s
+  writeChan sender (Cont (x * x) ch)
+  return True
+
+doWork ch (ContResponse x y sender) = do
+  threadDelay 1000000 -- 1s
+  writeChan sender (Result (x + y))
+  return False
+
+worker ch = do
+  v <- readChan ch
+  keepAlive <- doWork ch v
+  if keepAlive then
+    worker ch
+  else
+    return ()
+
 server ch (Calc x sender) state = do
   print ("server received " ++ (show x))
-  threadDelay 1000000 -- 1s
-  writeChan sender (Result (x * x + 1))
+  workerCh <- newChan
+  forkIO (worker workerCh)
+  writeChan workerCh (Calc x sender)
   return state
 
 client ch (Work serverCh) state = do
   print "client will send 4"
   writeChan serverCh (Calc 4 ch)
-  
+
   print "client will send 5"
   writeChan serverCh (Calc 5 ch)
-  
-  print "I can calculate a big factorial while waiting"
-  threadDelay 3000000 -- 3s
-  print "Now Im done with it"
 
   return state
 
+client ch (Cont cont contCh) state = do
+  print ("progress " ++ (show cont))
+  writeChan contCh (ContResponse cont 1 ch)
+
+  return state
 
 client ch (Result r) state =
   let newState = (r : state) in do
