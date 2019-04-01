@@ -12,8 +12,8 @@ object CalcServerPreActoresAsync extends App {
 
   case class Result(x: Int)
 
-  def channelWithReader(f: Any => Unit): Channel[Any] = {
-    val channel = new Channel[Any]()
+  def channelWithReader[T](f: T => Unit) = {
+    val channel = new Channel[T]()
 
     @tailrec
     def doRead(): Unit = {
@@ -28,7 +28,7 @@ object CalcServerPreActoresAsync extends App {
     channel
   }
 
-  val server = channelWithReader {
+  val server = channelWithReader[Calc] {
     case Calc(x, sender) =>
       println("server received: " + x)
       Thread.sleep(2000)
