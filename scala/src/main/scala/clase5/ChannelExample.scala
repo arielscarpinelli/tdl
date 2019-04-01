@@ -6,18 +6,10 @@ import scala.concurrent.duration.Duration
 
 object ChannelExample extends App {
 
-  def writer(channel: Channel[Int], max:Int) = {
-
-    def doWrite(n:Int):Unit = {
-      if (n < max) {
-        println("escribo " + n)
-        channel.write(n)
-        doWrite(n + 1)
-      }
-    }
-
-    doWrite(0)
-
+  def writer(channel: Channel[Int], n: Int, max:Int):Unit = {
+    println("escribo " + n)
+    channel.write(n)
+    if(n < max) writer(channel, n+1, max)
   }
 
   def reader(channel: Channel[Int]) {
@@ -32,9 +24,13 @@ object ChannelExample extends App {
   }
 
   val runningWriter = Future {
-    writer(channel, 100)
+    writer(channel, 1,100)
   }
 
-  Await.result(runningWriter, Duration.Inf)
+  val runningWriter2 = Future {
+    writer(channel, 100,200)
+  }
+
+  Await.result(runningWriter.zip(runningWriter2), Duration.Inf)
 
 }
