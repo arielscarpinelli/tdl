@@ -7,7 +7,7 @@ object CalcServerActores extends App {
 
   case class Calc(x: Int)
 
-  case class Work()
+  case class Request()
 
   case class Result(x: Int)
 
@@ -25,7 +25,7 @@ object CalcServerActores extends App {
     private var results = List[Int]()
 
     def receive = {
-      case Work() =>
+      case Request() =>
         println("client will send 4")
         server ! Calc(4)
 
@@ -46,5 +46,5 @@ object CalcServerActores extends App {
   val server = system.actorOf(Props[Server], name = "server")
   val client = system.actorOf(Props(classOf[Client], server), name = "client")
 
-  client ! Work()
+  client ! Request()
 }
