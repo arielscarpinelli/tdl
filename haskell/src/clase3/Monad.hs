@@ -16,8 +16,7 @@ imperative_ish = do
 functional =
   print "Please enter your name" >>=
   \_ -> getLine >>=
-  \name -> return ("Hello " ++ name) >>=
-  \greet -> print greet
+  \name -> print ("Hello " ++ name)
 
 underneath =
   join (fmap (\greet -> print greet)
