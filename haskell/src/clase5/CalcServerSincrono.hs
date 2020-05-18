@@ -12,15 +12,15 @@ data Message =
     result :: Int
   }
 
-reader f ch = do
+consumer f ch = do
   v <- readChan ch
   f v
-  reader f ch
+  consumer f ch
 
-channelWithReader f = do 
+consumer f = do
   ch <- newChan
   
-  forkIO (reader f ch)
+  forkIO (consumer f ch)
   
   return ch
 
@@ -31,7 +31,7 @@ server (Calc x sender) = do
   
 
 main = do
-  ch <- channelWithReader server
+  ch <- consumer server
   client <- newChan
   
   print "client will send 4"

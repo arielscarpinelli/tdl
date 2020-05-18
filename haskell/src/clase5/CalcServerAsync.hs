@@ -18,15 +18,15 @@ data ClientMessage =
   }
 
 
-reader f ch state = do
+consumer f ch state = do
   v <- readChan ch
   newState <- (f ch v state)
-  reader f ch newState
+  consumer f ch newState
 
-channelWithStatefulReader f initialState = do
+statefulConsumer f initialState = do
   ch <- newChan
   
-  forkIO (reader f ch initialState)
+  forkIO (consumer f ch initialState)
   
   return ch
 
@@ -62,7 +62,7 @@ client ch (Result r) state =
     return newState
 
 main = do
-  serverCh <- channelWithStatefulReader server ()
-  clientCh <- channelWithStatefulReader client []
+  serverCh <- statefulConsumer server ()
+  clientCh <- statefulConsumer client []
   writeChan clientCh (Work serverCh)
   threadDelay 10000000 -- 10s
